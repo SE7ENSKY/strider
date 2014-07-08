@@ -37,6 +37,7 @@
     "strider-build-badge": "~0",
     "strider-ruby": "~0.0.2",
     "strider-slack": "~0.2.1",
+    "strider-verstat": "~0.0.1",
     "connect": "~2.17.3",
     "express": "~3.4.5",
     "swig": "~0.14.0",
