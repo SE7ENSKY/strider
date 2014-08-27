@@ -4,20 +4,9 @@
 
 var BASE_PATH = '../../lib/';
 
-var _ = require('underscore')
-  , async = require('async')
-  , api = require('./index.js')
-  , check = require('validator').check
-  , common = require(BASE_PATH + 'common')
-  , email = require(BASE_PATH + 'email')
-  , humane = require(BASE_PATH + 'humane')
+var common = require(BASE_PATH + 'common')
   , jobs = require(BASE_PATH + 'jobs')
-  , filter = require(BASE_PATH + 'ansi')
   , gravatar = require('gravatar')
-  , ljobs = jobs
-  , Job = require(BASE_PATH + 'models').Job
-  , User = require(BASE_PATH + 'models').User
-  , logging = require(BASE_PATH + 'logging')
 
 var TEST_ONLY = "TEST_ONLY";
 var TEST_AND_DEPLOY = "TEST_AND_DEPLOY";
@@ -38,37 +27,47 @@ exports.jobs_start = function(req, res) {
     , now = new Date()
     , trigger
     , job
-  trigger = {
-    type: 'manual',
-    author: {
-      id: req.user._id,
-      email: req.user.email,
-      image: gravatar.url(req.user.email, {}, true)
-    },
-    timestamp: now,
-    source: {type: 'UI', page: req.param('page') || 'unknown'}
-  }
+    , Project = common.context.models.Project
 
-  
-  if (message) {
-      trigger.message = message;
-  } else {
-      if (type === 'TEST_AND_DEPLOY')
-          trigger.message = 'Manually Redeploying';
-      else
-          trigger.message =  'Manually Retesting';
-  }
+    Project.findOne({name: req.project.name}, function (err, project) {
+        if(err || !project) {
+            return res.json(404);
+        }
 
-  job = {
-    type: type,
-    user_id: req.user._id,
-    project: req.project.name,
-    ref: {branch: branch},
-    trigger: trigger,
-    created: now
-  }
-  common.emitter.emit('job.prepare', job)
-  res.json(job)
+        trigger = {
+            type: 'manual',
+            author: {
+                id: req.user._id,
+                email: req.user.email,
+                image: gravatar.url(req.user.email, {}, true)
+            },
+            timestamp: now,
+            source: {type: 'UI', page: req.param('page') || 'unknown'}
+        }
+
+
+        if (message) {
+            trigger.message = message;
+        } else {
+            if (type === 'TEST_AND_DEPLOY')
+                trigger.message = 'Manually Redeploying';
+            else
+                trigger.message =  'Manually Retesting';
+        }
+
+        job = {
+            type: type,
+            user_id: req.user._id,
+            project: req.project.name,
+            ref: {branch: branch},
+            trigger: trigger,
+            created: now
+        }
+        common.emitter.emit('job.prepare', job)
+        res.json(job)
+    });
+
+
 };
 
 /*
