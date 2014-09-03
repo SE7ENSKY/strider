@@ -45,7 +45,7 @@
     "strider-git": "~0.2.0",
     "strider-github": "~1.2.2",
     "strider-gitlab": "^1.0.1",
-    "strider-heroku": "~0.1.1",
+    "strider-heroku": "git+https://github.com/Se7enSky/strider-heroku",
     "strider-mailer": "~0.1.0",
     "strider-metadata": "~0.0.1",
     "strider-node": "~0.3.5",
